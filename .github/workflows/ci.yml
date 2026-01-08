@@ -33,18 +33,33 @@ jobs:
           path: report.html
 
   notify:
-    needs: [build-and-test, deploy]
+    needs: [test]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Download test report artifact
         uses: actions/download-artifact@v4
         with:
-          name: test-report
-          path: ./report
+          name: pytest-report
+          path: ./report.html
 
       - name: send email notification
         uses: dawidd6/action-send-mail@v3
         with: 
           server_address: smtp.gmail.com
           server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: GitHub Actions – Test Report
+          to: chokri.gammoudi@gmail.com
+          from: GitHub Actions
+          body: |
+            Bonjour Chokri,
+
+            Veuillez trouver en pièce jointe le rapport de test
+            généré automatiquement par GitHub Actions.
+
+            Cordialement,
+            CI Pipeline
+          attachments: ./report.html
